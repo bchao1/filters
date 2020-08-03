@@ -9,7 +9,7 @@ def spatial_kernel(s=1, reduce=True):
     x = np.tile((np.arange(l) - l // 2).reshape(1, l), (l, 1))
     y = np.transpose(x)
     d = x**2 + y**2
-    g = np.exp(-d / (2 * (s**2)))
+    g = np.exp(-d / (2 * (s**2))) / (2 * np.pi * (s**2))
     if reduce:
         g /= np.sum(g.ravel())
     return g
@@ -18,8 +18,8 @@ def range_kernel(I, s=1, reduce=True):
     assert I.shape[0] == I.shape[1]
     l = I.shape[0]
     I = I.copy().astype(np.float64)
-    I = (I - I[l // 2, l // 2])  # minus center pixel value
-    k = np.exp(-I / (2 * (s**2)))
+    I = np.abs((I - I[l // 2, l // 2]))  # minus center pixel value
+    k = np.exp(-I / (2 * (s**2))) / (2 * np.pi * (s**2))
     if reduce:
         k /= np.sum(k.ravel())
     return k
@@ -45,8 +45,10 @@ def bilateral_filter(img, s1, s2):
 if __name__ == '__main__':
     img = Image.open('../data/town.png').convert('L')
     img = np.array(img)
-    k = spatial_kernel(1)
+    k = spatial_kernel(3)
     gaussian_filtered = convolve2d(img, k, mode='same').astype(np.uint8)
-    bilateral_filtered = bilateral_filter(img, 1, 0.5)
+    bilateral_filtered = bilateral_filter(img, 3, 5)
+    Image.fromarray(img).save('../results/original.png')
     Image.fromarray(bilateral_filtered).save('../results/bilateral.png')
     Image.fromarray(gaussian_filtered).save('../results/guassian.png')
+    #Image.fromarray(residual).save('test.png')
