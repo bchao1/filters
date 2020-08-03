@@ -46,7 +46,7 @@ if __name__ == '__main__':
     img = Image.open('../data/town.png').convert('L')
     img = np.array(img)
     k = spatial_kernel(3)
-    gaussian_filtered = convolve2d(img, k, mode='same', boundary="symm").astype(np.uint8)
+    gaussian_filtered = convolve2d(img, k, mode='same', fillvalue=255).astype(np.uint8)
     bilateral_filtered = bilateral_filter(img, 3, 5)
     Image.fromarray(img).save('../results/original.png')
     Image.fromarray(bilateral_filtered).save('../results/bilateral.png')
